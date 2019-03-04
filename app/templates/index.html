@@ -10,7 +10,7 @@
         {% endif %}
         {% extends 'base.html'%}
         {% import 'macros.html' as macro%}
-        
+
 <!-- Styles block -->
 
         {% block styles%}
@@ -22,22 +22,23 @@
   
     <body>
         {%block content%}
-        <div class="container" style= "font-family:monospace;background-color:whitesmoke">
-            <div class="jumbotron" style="background-color:rgb(14, 13, 13)">
-                <h2 style="text-align:center;color: white">Welcome</h2>
-                <h3 style="text-align:center;color: white">to</h3>
-                <h1 style="text-align:center;color: white">Pitch</h1>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="well well-lg" style="background-color:rgb(92, 13, 13)">
-                            <h3 style="color: bisque; font-family: monospace; font-size: 30px;text-align:center">Pitches</h3>
-                            <p style="font-family:monospace; font-size: 20px;color: black;text-align:center">One minute is quiet enough to use,pitch out!!</p>
-                            <a href="{{url_for('main.new_pitch')}}" class="btn btn-primary" style="color:white;margin-left: 45%;background-color: rgb(6, 7, 43)">New pitch</a>
-                        </div>
-                    </div>
-                </div>
+        <div class="container" style="padding-bottom: 20px;">
+          <a href="{{url_for('main.new_post')}}" class="btn btn-primary" style="background-color:rgb(6, 44, 41)">Create blog</a>
+        </div>
+        
+        <div class="container" style= "font-family: 'Cormorant Upright', serif;">
+            <div class="jumbotron text-center" style="background-color:rgb(116, 165, 138); color:black; padding: 55px 25px; font-family: monospace;">
+              <h1>Recent Blog</h1>
             </div>
+            <!-- <a href="/subscribe/{{current_user.id}}" class="btn btn-success">Subscribe</a> -->
+            <hr>
+            {{macro.displayPosts(posts)}}
         </div>
         {%endblock%}
+        
     </body>
-</html>
+ </html>
+
+       
+
+   
