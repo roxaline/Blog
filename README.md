@@ -8,7 +8,7 @@ This create a personal blogging website where the admin can create and share his
 
 **This project was generated with Python 3.6** 
 
-<!-- ## BDD
+## BDD
 
 **A user needs to sign up, he/she also needs to sign in order to create,vote and post pitches**
 
@@ -27,7 +27,7 @@ B.  **A writer story**
 * As a writer, will be able to delete comments that I find insulting or degrading.
 * As a writer, will be able to update or delete blogs I have created.
 
-## Installations
+<!-- ## Installations
 
 $ source virtual/bin/activate
 
