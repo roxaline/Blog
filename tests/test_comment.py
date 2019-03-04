@@ -18,7 +18,6 @@ class CommentModelTest(unittest.TestCase):
         self.assertTrue(len(Comment.query.all())>0
 
     def test_get_comment_by_id(self):
-
         self.new_comment.save_comment()
         get_comments = Comment.get_comments()
         self.assertTrue(len(got_comments) == 1)
