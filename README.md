@@ -8,7 +8,7 @@ This create a personal blogging website where the admin can create and share his
 
 **This project was generated with Python 3.6** 
 
-## BDD
+<!-- ## BDD
 
 **A user needs to sign up, he/she also needs to sign in order to create,vote and post pitches**
 
@@ -60,4 +60,4 @@ Phone Number: (+250)786421009
 
 ## License
 
-MIT Copyright (c) 2019
+MIT Copyright (c) 2019 -->
