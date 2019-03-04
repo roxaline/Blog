@@ -4,7 +4,7 @@ class Config:
 
     
     SECRET_KEY = os.environ.get('SECRET_KEY')
-    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://roxaline:roselyne12@localhost/pitch'
+    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://roxaline:roselyne12@localhost/blog'
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -20,10 +20,10 @@ class ProdConfig(Config):
 
 
 class TestConfig(Config):
-    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://roxaline:roselyne12@localhost/pitch_test'
+    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://roxaline:roselyne12@localhost/blog_test'
 
 class DevConfig(Config):
-    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://roxaline:roselyne12@localhost/pitch'
+    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://roxaline:roselyne12@localhost/blog'
     DEBUG = True
 
 config_options = {
