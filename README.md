@@ -27,7 +27,7 @@ B.  **A writer story**
 * As a writer, will be able to delete comments that I find insulting or degrading.
 * As a writer, will be able to update or delete blogs I have created.
 
-<!-- ## Installations
+## Installations
 
 $ source virtual/bin/activate
 
@@ -35,7 +35,7 @@ $ pip install flask-script
 
 $ chmod a+x start.sh
 
-## Technologies Used
+<!-- ## Technologies Used
 
 Python v3.6
 
