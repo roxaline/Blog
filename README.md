@@ -35,7 +35,7 @@ $ pip install flask-script
 
 $ chmod a+x start.sh
 
-<!-- ## Technologies Used
+## Technologies Used
 
 Python v3.6
 
@@ -58,6 +58,6 @@ E-mail: *mariadelarosita078@gmail.com*
 
 Phone Number: (+250)786421009
 
-## License
+<!-- ## License
 
 MIT Copyright (c) 2019 -->
