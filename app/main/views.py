@@ -1,23 +1,88 @@
-from flask import render_template,request,redirect,url_for,abort
-from . import main
-from .forms import UpdateProfile,PostForm,CommentForm
-from ..models import User,Post,Comment
+from flask import render_template,request,redirect,url_for
+from . import main 
+from ..import db
+from ..models import Comment,Blog,User, PhotoProfile, Quote, Subscription
+from ..request import get_quote
+from .forms import UpdateProfile,CommentForm,UpdateProfile,AddBlogForm,SubscriptionForm,UpdateBlogForm
 from flask_login import login_required, current_user
-from .. import db,photos
-import markdown2
-from datetime import datetime
+from ..email import mail_message
 
+# Views
 
-@main.route('/')
+@main.route('/', methods = ['GET', 'POST'])
 def index():
 
-    '''
-    View root page function that returns the index page and its data
-    '''
-    title = 'Home - Welcome to our Blog site'
+ '''
+   View root page function that returns the index page and its data
+   '''
+ form=SubscriptionForm()
+ if form.validate_on_submit():
+       name = form.name.data
 
-    return render_template('index.html', title = title )
+       email= form.email.data
+       new_subscriber=Subscription(name=name,email=email)
+       db.session.add(new_subscriber)
+       db.session.commit()
 
+    #    mail_message("Thank you for subscribing","email/welcome_user",new_subscriber.email,user=new_subscriber)
+
+       return redirect(url_for('main.index'))
+ quote=get_quote()
+ blogs=Blog.get_blogs()
+ title= "WELCOME"
+
+ return render_template('index.html',title=title,quote=quote,blogs=blogs ,subscription_form=form)
+
+@main.route('/blog/new/', methods = ['GET','POST'])
+@login_required
+def create_blogs():
+    form = AddBlogForm()
+
+    if form.validate_on_submit():
+        # category = form.category.data
+        title = form.title.data 
+
+        blog = form.content.data 
+        content = form.content.data 
+
+        new_blog = Blog(description=content,user=current_user, title=title)
+        new_blog.save_blog()
+
+        subscribers=Subscription.query.all()
+        for subscriber in subscribers:
+        #    mail_message("New Blog Post","email/send_email",subscriber.email,user=subscriber,blog=new_blog)
+
+            return redirect(url_for('main.index'))
+
+
+    title = "Add Post"   
+    return render_template('blogs.html', title = title, blog_form = form)
+
+
+@main.route('/comment/new/<int:id>', methods = ['GET','POST'])
+@login_required
+def create_comments(id):
+    form = CommentForm()
+    blog= Blog.query.filter_by(id=id).first()
+
+    if form.validate_on_submit():
+
+        comment = form.comment.data
+        username=form.username.data
+
+        new_comment =Comment(content = comment , blog= blog, username = username ,user=current_user)
+        db.session.add(new_comment)
+        db.session.commit()
+
+    comments = Comment.get_comments(id=id)
+
+    return render_template('comments.html', form=form ,comments=comments)
+
+@main.route('/blog/<int:id>')
+def blog(id):
+    blog=Blog.query.filter_by(id=id).first()
+    comments=Comment.get_comments(id=id)
+    return render_template('blog.html',blog=blog,comments=comments)
 @main.route('/user/<uname>')
 def profile(uname):
     user = User.query.filter_by(username = uname).first()
@@ -27,7 +92,7 @@ def profile(uname):
 
     return render_template("profile/profile.html", user = user)
 
-@main.route('/user/<uname>/update', methods = ['GET', 'POST'])
+@main.route('/user/<uname>/update',methods = ['GET','POST'])
 @login_required
 def update_profile(uname):
     user = User.query.filter_by(username = uname).first()
@@ -42,125 +107,54 @@ def update_profile(uname):
         db.session.add(user)
         db.session.commit()
 
-        return redirect(url_for('.profile', uname = user.username))
+        return redirect(url_for('.profile',uname=user.username))
 
-@main.route('/user/<uname>/update/pic', methods = ['POST'])
+    return render_template('profile/update.html',form =form)
+@main.route('/user/<uname>/update/pic',methods= ['POST'])
 @login_required
 def update_pic(uname):
     user = User.query.filter_by(username = uname).first()
-
     if 'photo' in request.files:
         filename = photos.save(request.files['photo'])
         path = f'photos/{filename}'
         user.profile_pic_path = path
         db.session.commit()
+    return redirect(url_for('main.profile',uname=uname))
 
-    return redirect(url_for('main.profile', uname = uname))
-
-    return render_template('profile/update.html', form = form)
-
-
-
-@main.route('/post/new', methods = ['GET','POST'])
+@main.route('/delete/blog/<int:id>', methods = ['GET', 'POST'])
 @login_required
-def new_post():
-    post_form = PostForm()
-    new_post= None
-    if post_form.validate_on_submit():
-        title = post_form.title.data
-        post = post_form.text.data
-        
-        users = User.query.all()
-        # Updated post instance
-        new_post = Post(post_title=title,post_content=post,user=current_user)
+def delete_blog(id):
+    blog=Blog.query.filter_by(id=id).first()
 
-        # Save post method
-        new_post.save_post()
-        return redirect(url_for('.index'))
+    if blog is not None:
+      blog.delete_blog()
+    return redirect(url_for('main.index'))
 
-    title = 'New post'
-    return render_template('new_post.html',title = title,post_form=post_form, new_post=new_post)
+@main.route('/delete/comment/<int:id>', methods = ['GET', 'POST'])
+@login_required
+def delete_comment(id):
+    comment=Comment.query.filter_by(id=id).first()
 
-@main.route('/posts')
-def all_posts():
-    posts = Post.query.order_by(Post.date_posted.desc()).all()
-
-    title = 'Blog-Post'
-
-    return render_template('posts.html', title=title, posts=posts)
+    if comment is not None:
+      comment.delete_comment()
+    return redirect(url_for('main.index'))
 
 
-@main.route('/post/<int:id>', methods=['GET', 'POST'])
-def post(id):
-    form = CommentForm()
-    post = Post.get_post(id)
+@main.route('/edit/blog/<int:id>',methods= ['GET','POST'])
+@login_required
+def update_blog(id):
+   blog=Blog.query.filter_by(id=id).first()
+   if blog is None:
+        abort(404)
 
-    if form.validate_on_submit():
-        comment = form.comment.data
+   form=UpdateBlogForm()
 
-        new_comment = Comment(comment=comment, user=current_user, post=post.id)
+   if form.validate_on_submit():
+         blog.title=form.title.data
+         blog.content=form.content.data
 
-        new_comment.save_comment()
+         db.session.add(blog)
+         db.session.commit()
 
-    comments = Comment.get_comments(post)
-
-    title = f'{post.post_title}'
-    return render_template('post.html', title=title, post=post, form=form, comments=comments)
-
-
-@main.route('/delete_comment/<id>/<post_id>', methods=['GET', 'POST'])
-def delete_comment(id, post_id):
-    comment = Comment.query.filter_by(id=id).first()
-
-    db.session.delete(comment)
-    db.session.commit()
-
-    return redirect(url_for('main.post', id=post_id))
-
-
-@main.route('/delete_post/<id>', methods=['GET', 'POST'])
-def delete_post(id):
-    post = Post.query.filter_by(id=id).first()
-
-    db.session.delete(post)
-    db.session.commit()
-
-    return redirect(url_for('main.all_posts'))
-
-
-# @main.route('/subscribe/<id>')
-# def subscribe(id):
-#     user = User.query.filter_by(id=id).first()
-
-#     user.subscription = True
-
-#     db.session.commit()
-
-#     return redirect(url_for('main.index'))
-
-
-@main.route('/post/update/<id>', methods=['GET', 'POST'])
-def update_post(id):
-    form = PostForm()
-
-    post = Post.query.filter_by(id=id).first()
-
-    form.title.data = post.post_title
-    form.text.data = post.post_content
-
-    if form.validate_on_submit():
-        post_title = form.title.data
-        post_content = form.text.data
-
-        post.title = post_title
-        post.text = post_content
-
-        db.session.commit()
-
-        return redirect(url_for('main.post', id=post.id))
-
-    return render_template('update.html', form=form)
-
-
-
-
+         return redirect(url_for('main.index'))
+   return render_template('update_blog.html',form=form)
