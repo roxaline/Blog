@@ -45,13 +45,21 @@ Flask
 
 ## Code
 
-To run a project in browser you just use this code in your terminal
+### To access my project
 
-**./start.sh**
+ in terminal 
+
+`$ git clone https://github.com/roxaline/Blog.git `
+
+`$ ./start.sh `
+
+After you run a project in browser you just use this code in your terminal
+
+
 
  it gives you  HTTP protocol with URL which is used to transfer data over the web.
- You will copy and paste that URL ` ` in your browser.
- 
+ You will copy and paste that URL ` http://127.0.0.1:5000/ ` in your browser.
+
 ## Contacts
  
 E-mail: *mariadelarosita078@gmail.com*
